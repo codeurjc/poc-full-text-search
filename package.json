@@ -1,0 +1,19 @@
+{
+  "name": "poc-full-text-search",
+  "version": "1.0.0",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/codeurjc/poc-full-text-search.git"
+  },
+  "dependencies": {
+    "cors": "2.8.5",
+    "express": "4.17.1",
+    "iso-639-1": "2.1.8",
+    "pg": "8.5.1",
+    "sequelize": "6.5.0"
+  }
+}
