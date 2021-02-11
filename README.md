@@ -8,14 +8,16 @@ This is a proof-of-concept application to illustrate the usage of Full Text Sear
 
 ## Running the POC
 
-0. Requirements
+### 0. Requirements
 
 - [Docker](https://docs.docker.com/get-docker/)
 - [Docker Compose](https://docs.docker.com/compose/install/)
 - [Node](https://nodejs.org/es/download/)
 - [Postman](https://www.postman.com/downloads/)
 
-1. Start PostgreSQL
+---
+
+### 1. Start PostgreSQL
 
 ```
 docker-compose up
@@ -28,13 +30,17 @@ docker-compose up
 > - Password: ${POSTGRES_PASSWORD}
 > - Database: ${POSTGRES_DB}
 
-2. Run Node server
+---
+
+### 2. Run Node server
 
 ```
 node server.js
 ```
 
-3. Consume Postman collection REST API methods:
+---
+
+### 3. Consume Postman collection REST API methods:
 
 - Create an Event
 - Get all Events
