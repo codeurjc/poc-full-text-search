@@ -13,6 +13,9 @@ module.exports = (sequelize, Sequelize) => {
         title: {
             type: Sequelize.TEXT
         },
+        lang: {
+            type: Sequelize.STRING
+        },
         vector: {
             type: 'TSVECTOR'
         },

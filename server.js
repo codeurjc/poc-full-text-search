@@ -73,10 +73,10 @@ CREATE OR REPLACE FUNCTION function_update_searches_table() RETURNS trigger AS
 $BODY$
 BEGIN
     IF TG_OP = 'INSERT' THEN
-        INSERT INTO searches("id","text","title","vector","objectType","createdAt","updatedAt") VALUES (NEW."id",CONCAT(NEW."title",' ',NEW."description"),NEW."title",${BUILD_TSVECTOR},'event',NEW."createdAt",NEW."updatedAt");
+        INSERT INTO searches("id","text","title","lang","vector","objectType","createdAt","updatedAt") VALUES (NEW."id",CONCAT(NEW."title",' ',NEW."description"),NEW."title",NEW."lang",${BUILD_TSVECTOR},'event',NEW."createdAt",NEW."updatedAt");
         RETURN NEW;
     ELSEIF TG_OP = 'UPDATE' THEN
-        UPDATE searches SET "text" = CONCAT(NEW."title",' ',NEW."description"), "title" = NEW."title", "vector" = ${BUILD_TSVECTOR}, "updatedAt" = NEW."updatedAt";
+        UPDATE searches SET "text" = CONCAT(NEW."title",' ',NEW."description"), "title" = NEW."title", "vector" = ${BUILD_TSVECTOR}, "lang" = NEW."lang", "updatedAt" = NEW."updatedAt" WHERE searches."id" = NEW."id";
         RETURN NEW;
     ELSEIF TG_OP = 'DELETE' THEN
         DELETE FROM searches WHERE searches."id" = OLD."id";

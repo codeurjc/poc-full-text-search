@@ -42,7 +42,7 @@ exports.search = async (req, res) => {
 };
 
 const SEARCH_QUERY = `
-SELECT title, ts_rank_cd(vector,'%search%') AS rank
+SELECT title, id, lang, ts_rank_cd(vector,'%search%') AS rank
 FROM searches
 WHERE vector @@ to_tsquery('%lang%','%search%')
 ORDER BY rank DESC
