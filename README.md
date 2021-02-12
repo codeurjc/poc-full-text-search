@@ -1,6 +1,6 @@
 # poc-full-text-search
 
-This is a proof-of-concept application to illustrate the usage of Full Text Search in a PostgreSQL environment. The stack of this POC consists of:
+This is a proof-of-concept application to illustrate the usage of Full Text Search in a PostgreSQL environment. The stack of this PoC consists of:
 
 1. A **NodeJS** server offering a REST API to manage objects in the database, following a traditional CRUD strategy.
 2. A **PostgreSQL** database with 2 types of tables: simple data tables storing the actual data, and a search table with the metadata that full text search requires.
@@ -38,7 +38,7 @@ node server.js
 
 > When starting the server the DB will be completely cleaned-up and sample data will be automatically inserted in the tables (see files inside folder `sample-data`).
 
-### 3. Consume Postman collection REST API methods:
+### 3. Consume Postman collection REST API methods
 
 #### Event API
 - Create a new Event
