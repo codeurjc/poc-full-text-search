@@ -13,6 +13,7 @@ exports.create = (req, res) => {
         });
         return;
     }
+    req.body = formatLanguage(req.body);
     const newEvent = {
         title: req.body.title,
         description: req.body.description,
@@ -100,6 +101,7 @@ exports.patch = (req, res) => {
 };
 
 function updateAux(res, id, body) {
+    body = formatLanguage(body);
     Event.update(body, {
             where: {
                 id: id
@@ -194,4 +196,11 @@ function validateEvent(event) {
             };
         }
     }
+}
+
+function formatLanguage(object) {
+    if (object.lang != null) {
+        object.lang = ISO6391.getName(object.lang).toLowerCase();
+    }
+    return object;
 }
