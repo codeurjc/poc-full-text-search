@@ -1,5 +1,6 @@
-const db = require("../models");
-const ISO6391 = require('iso-639-1');
+const db = require("../models/index");
+const validateLanguage = require("../utils/utils").validateLanguage;
+const languageFromCodeToName = require("../utils/utils").languageFromCodeToName;
 const Event = db.events;
 const Op = db.Sequelize.Op;
 
@@ -13,7 +14,7 @@ exports.create = (req, res) => {
         });
         return;
     }
-    req.body = formatLanguage(req.body);
+    req.body.lang = languageFromCodeToName(req.body.lang);
     const newEvent = {
         title: req.body.title,
         description: req.body.description,
@@ -183,24 +184,5 @@ function validateEvent(event) {
             message: "'description' can not be empty"
         };
     }
-    if (!event.lang) {
-        throw {
-            status: 400,
-            message: "'lang' can not be empty"
-        };
-    } else {
-        if (!ISO6391.validate(event.lang)) {
-            throw {
-                status: 400,
-                message: "'lang' is not a valid language (ISO 639-1 code)"
-            };
-        }
-    }
-}
-
-function formatLanguage(object) {
-    if (object.lang != null) {
-        object.lang = ISO6391.getName(object.lang).toLowerCase();
-    }
-    return object;
+    validateLanguage(event.lang);
 }
