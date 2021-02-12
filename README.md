@@ -53,6 +53,14 @@ node server.js
 - List all Searches
 - Search by words
 
+The "Search by words" operation consists of:
+
+`GET http://localhost:5000/api/searches/search?lang=en&words=WORD1,WORD2`
+
+The following query parameters are required:
+- `lang`: indicating the language of the searched document.
+- `words`: a comma-separated list of the words to search.
+
 ---
 
 ## Understanding the PoC
