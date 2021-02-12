@@ -6,7 +6,9 @@ This is a proof-of-concept application to illustrate the usage of Full Text Sear
 2. A **PostgreSQL** database with 2 types of tables: simple data tables storing the actual data, and a search table with the metadata that full text search requires.
 3. A **Postman** collection to consume the server's REST API (`postman_collection.json`).
 
-## Running the POC
+---
+
+## Running the PoC
 
 ### 0. Requirements
 
@@ -14,8 +16,6 @@ This is a proof-of-concept application to illustrate the usage of Full Text Sear
 - [Docker Compose](https://docs.docker.com/compose/install/)
 - [Node](https://nodejs.org/es/download/)
 - [Postman](https://www.postman.com/downloads/)
-
----
 
 ### 1. Start PostgreSQL
 
@@ -30,22 +30,25 @@ docker-compose up
 > - Password: ${POSTGRES_PASSWORD}
 > - Database: ${POSTGRES_DB}
 
----
-
 ### 2. Run Node server
 
 ```
 node server.js
 ```
 
----
+> When starting the server the DB will be completely cleaned-up and sample data will be automatically inserted in the tables (see files inside folder `sample-data`).
 
 ### 3. Consume Postman collection REST API methods:
 
-- Create an Event
-- Get all Events
+#### Event API
+- Create a new Event
+- Get multiple Events
 - Get one Event
-- Update an Event
-- Patch an Event
-- Delete one Event
+- Update Event
+- Patch Event
+- Delete Event
 - Delete all Events
+
+#### Search API
+- List all Searches
+- Search by words

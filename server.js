@@ -1,12 +1,15 @@
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
+// Import native dependencies
 const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 
+// Import custom dependencies
 const db = require("./models/index");
 const languageFromCodeToName = require("./utils/utils").languageFromCodeToName;
 
+// Start DB and server
 startDB();
 startServer();
 
@@ -17,7 +20,7 @@ async function startDB() {
         force: true
     });
     console.log("DB dropped and re-synced");
-    await initializeTrigger();
+    await initializeTriggers();
     await feedSampleData();
 }
 
@@ -26,15 +29,15 @@ function startServer() {
 
     app.use(cors());
 
-    // parse requests of content-type - application/json
+    // Parse requests of content-type "pplication/json"
     app.use(bodyParser.json());
 
-    // parse requests of content-type - application/x-www-form-urlencoded
+    // Parse requests of content-type "application/x-www-form-urlencoded"
     app.use(bodyParser.urlencoded({
         extended: true
     }));
 
-    // set port, listen for requests
+    // Set API endpoints, configure port and listen for requests
     require("./routes/event.routes")(app);
     require("./routes/search.routes")(app);
     const PORT = process.env.PORT || 5000;
@@ -43,7 +46,11 @@ function startServer() {
     });
 }
 
-async function initializeTrigger() {
+/**
+ * Generate in PostgreSQL the trigger to insert/update/delete
+ * the "search" table upon data table modifications
+ */
+async function initializeTriggers() {
     await createTriggerFunction();
     await createTrigger('events');
 }
@@ -76,14 +83,14 @@ BEGIN
 END;
 $BODY$
 language PLPGSQL
-`.replace(/\n|\r/g, ' ');
+`.replace(/\n|\r/g, ' '); // Replace new line chars with a single white space
 
 const CREATE_TRIGGER = `
 CREATE TRIGGER trigger_%tablename%
     AFTER INSERT OR UPDATE OR DELETE ON %tablename%
     FOR EACH ROW
     EXECUTE PROCEDURE function_update_searches_table();
-`.replace(/\n|\r/g, ' ');
+`.replace(/\n|\r/g, ' '); // Replace new line chars with a single white space
 
 async function createTriggerFunction() {
     console.log('Creating trigger function');
