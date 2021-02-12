@@ -5,6 +5,7 @@ const bodyParser = require("body-parser");
 const cors = require("cors");
 
 const db = require("./models/index");
+const languageFromCodeToName = require("./utils/utils").languageFromCodeToName;
 
 startDB();
 startServer();
@@ -17,6 +18,7 @@ async function startDB() {
     });
     console.log("DB dropped and re-synced");
     await initializeTrigger();
+    await feedSampleData();
 }
 
 function startServer() {
@@ -46,6 +48,17 @@ async function initializeTrigger() {
     await createTrigger('events');
 }
 
+async function feedSampleData() {
+    const Event = db.events;
+    Event.sync().then(() => {
+        const sampleData = require("./sample-data/events");
+        sampleData.forEach(element => {
+            element.lang = languageFromCodeToName(element.lang);
+            Event.create(element);
+        });
+    });
+}
+
 const CREATE_TRIGGER_FUNCTION = `
 CREATE OR REPLACE FUNCTION function_update_searches_table() RETURNS trigger AS
 $BODY$
@@ -63,14 +76,14 @@ BEGIN
 END;
 $BODY$
 language PLPGSQL
-`.replace(/\n|\r/g,' ');
+`.replace(/\n|\r/g, ' ');
 
 const CREATE_TRIGGER = `
 CREATE TRIGGER trigger_%tablename%
     AFTER INSERT OR UPDATE OR DELETE ON %tablename%
     FOR EACH ROW
     EXECUTE PROCEDURE function_update_searches_table();
-`.replace(/\n|\r/g,' ');
+`.replace(/\n|\r/g, ' ');
 
 async function createTriggerFunction() {
     console.log('Creating trigger function');

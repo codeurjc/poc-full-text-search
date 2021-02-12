@@ -8,10 +8,10 @@ module.exports = (sequelize, Sequelize) => {
             allowNull: false
         },
         text: {
-            type: Sequelize.STRING
+            type: Sequelize.TEXT
         },
         title: {
-            type: Sequelize.STRING
+            type: Sequelize.TEXT
         },
         vector: {
             type: 'TSVECTOR'
