@@ -35,6 +35,15 @@ exports.search = async (req, res) => {
         });
         return;
     }
-    const result = await db.sequelize.query("SELECT * FROM searches WHERE vector @@ to_tsquery('" + ISO6391.getName(lang).toLowerCase() + "', '" + search + "')");
+    const query = SEARCH_QUERY.split("%search%").join(search).split("%lang%").join(ISO6391.getName(lang).toLowerCase());
+    console.log(query);
+    const result = await db.sequelize.query(query);
     res.send(result[0]);
 };
+
+const SEARCH_QUERY = `
+SELECT title, ts_rank_cd(vector,'%search%') AS rank
+FROM searches
+WHERE vector @@ to_tsquery('%lang%','%search%')
+ORDER BY rank DESC
+`.replace(/\n|\r/g, ' '); // Replace new line chars with a single white space

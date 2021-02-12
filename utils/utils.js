@@ -17,7 +17,10 @@ function validateLanguage(code) {
 }
 
 function languageFromCodeToName(code) {
-    return ISO6391.getName(code).toLowerCase();
+    if (code != null) {
+        return ISO6391.getName(code).toLowerCase();
+    }
+    return undefined;
 }
 
 module.exports.validateLanguage = validateLanguage;

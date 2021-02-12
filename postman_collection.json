@@ -92,7 +92,7 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:5000/api/searches/search?lang=en&words=sampling,tree",
+					"raw": "http://localhost:5000/api/searches/search?lang=en&words=centre,report",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -110,7 +110,7 @@
 						},
 						{
 							"key": "words",
-							"value": "sampling,tree"
+							"value": "centre,report"
 						}
 					]
 				}
@@ -220,7 +220,7 @@
 			"response": []
 		},
 		{
-			"name": "Delete All Events",
+			"name": "Delete all Events",
 			"request": {
 				"method": "DELETE",
 				"header": [],

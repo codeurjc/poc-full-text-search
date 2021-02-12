@@ -102,7 +102,9 @@ exports.patch = (req, res) => {
 };
 
 function updateAux(res, id, body) {
-    body = formatLanguage(body);
+    if (body.lang != null) {
+        body.lang = languageFromCodeToName(body.lang);
+    }
     Event.update(body, {
             where: {
                 id: id
