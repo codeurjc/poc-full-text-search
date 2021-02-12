@@ -67,7 +67,7 @@ The following query parameters are required:
 
 The searching feature implemented by this application is based on PostgreSQL native Full-Text-Search capabilities. It can be summarize in the following points:
 
-- When a new row is inserted in a data table, automatically a new row is inserted into the search table thanks to a PostgreSQL trigger. Both rows share the very sam primary key ("id" field).
+- When a new row is inserted in a data table, automatically a new row is inserted into the search table thanks to a PostgreSQL trigger. Both rows share the very same primary key ("id" field).
 - Data rows contain a title and a description, and the search row contains a TSVECTOR built by combining both the title and the description, applying a higher weight to the title.
 - Whenever a row of the data table is modified (all or some of its fields), the associated row of the search table is also accordingly modified. The TSVECTOR field is re-generated to support changes in the title or description.
 - Whenever a row of the data table is deleted, the associated row of the search table is also deleted.
