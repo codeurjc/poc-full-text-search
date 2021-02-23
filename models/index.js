@@ -19,6 +19,5 @@ db.Sequelize = Sequelize;
 db.sequelize = sequelize;
 
 db.events = require("./event.model.js")(sequelize, Sequelize);
-db.searches = require("./search.model.js")(sequelize, Sequelize);
 
 module.exports = db;

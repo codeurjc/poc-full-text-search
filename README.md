@@ -3,7 +3,7 @@
 This is a proof-of-concept application to illustrate the usage of Full Text Search in a PostgreSQL environment. The stack of this PoC consists of:
 
 1. A **NodeJS** server offering a REST API to manage objects in the database, following a traditional CRUD strategy.
-2. A **PostgreSQL** database with 2 types of tables: simple data tables storing the actual data, and a search table with the metadata that full text search requires.
+2. A **PostgreSQL** database with 1 simple data table. Plugin [PGroonga](https://pgroonga.github.io/) is used to support languages that are not originally from western Europe.
 3. A **Postman** collection to consume the server's REST API (`postman_collection.json`).
 
 ---
@@ -23,12 +23,11 @@ This is a proof-of-concept application to illustrate the usage of Full Text Sear
 docker-compose up
 ```
 
-> This PostgreSQL Docker setup includes **adminer** tool. To review or manage the database in the web dashboard, connect to `http://localhost:8080/` and login with (env variables being the ones defined in the `docker-compose.yml` file):
-> - System: "PostgreSQL"
-> - Server: "db"
-> - Username: ${POSTGRES_USER} 
-> - Password: ${POSTGRES_PASSWORD}
-> - Database: ${POSTGRES_DB}
+> The docker-compose.yml file declares 2 services:
+> - `db`: the PostgreSQL database with the PGroonga plugin already installed.
+> - `dbsetup`: the very same container as the previous one, but here used to wait until Postgre is ready to enable the PGroonga plugin. The container is stopped after that.
+>
+> The PostgreSQL database runs in a static IP (`172.99.0.22`) of network `static-network`.
 
 ### 2. Run Node server
 
@@ -36,12 +35,13 @@ docker-compose up
 node server.js
 ```
 
-> When starting the server the DB will be completely cleaned-up and sample data will be automatically inserted in the tables (see files inside folder `sample-data`).
+> When starting the server the DB will be completely cleaned-up and sample data will be automatically inserted in the table (see files inside folder `sample-data`).
 
 ### 3. Consume Postman collection REST API methods
 
 #### Event API
 - Create a new Event
+- Create a new Event (Chinese)
 - Get multiple Events
 - Get one Event
 - Update Event
@@ -50,27 +50,45 @@ node server.js
 - Delete all Events
 
 #### Search API
-- List all Searches
 - Search by words
+- Search by words (Chinese)
 
 The "Search by words" operation consists of:
 
-`GET http://localhost:5000/api/searches/search?lang=en&words=WORD1,WORD2`
+`GET http://localhost:5000/api/searches/search?table=events&lang=en&words=WORD1,WORD2`
 
 The following query parameters are required:
-- `lang`: indicating the language of the searched document.
-- `words`: a comma-separated list of the words to search.
+- `table`: mandatory, the table where to perform the search.
+- `words`: mandatory, a comma-separated list of the words to search.
+- `lang`: optional, indicating the language of the searched document. If defined, an additional filter will be added to the query to filter by field `lang`. But it doesn't actually participate in the full text search query itself. If undefined, a default query will be performed, delegating the responsibility to PGroonga library (which is prepared to manage the language itself according to the [official documentation](https://pgroonga.github.io/v1/reference/pgroonga-versus-textsearch-and-pg-trgm.html#index-creation)).
 
 ---
 
 ## Understanding the PoC
 
-The searching feature implemented by this application is based on PostgreSQL native Full-Text-Search capabilities. It can be summarize in the following points:
+The searching feature implemented by this application is based on PostgreSQL plugin **PGroonga**. This plugin supports full text search in all languages.
 
-- When a new row is inserted in a data table, automatically a new row is inserted into the search table thanks to a PostgreSQL trigger. Both rows share the very same primary key ("id" field).
-- Data rows contain a title and a description, and the search row contains a TSVECTOR built by combining both the title and the description, applying a higher weight to the title.
-- Whenever a row of the data table is modified (all or some of its fields), the associated row of the search table is also accordingly modified. The TSVECTOR field is re-generated to support changes in the title or description.
-- Whenever a row of the data table is deleted, the associated row of the search table is also deleted.
-- The search operation has 2 important properties:
-    1. The list of words provided as search query are joined with an OR operator. Any data row containing any of the provided words will be returned.
-    2. The search results are returned in descent order according to their similarity with the given words (of course taking into account the different weights of the data columns). PostgreSQL function `ts_rank_cd` is used for this purpose: it ranks documents for query using the Cover Density Ranking algorithm. This algorithm is similar to the default one of function `ts_rank`, but the proximity of matching lexemes to each other is also taken into consideration, which translates in a higher level of interest in phrases than in the actual terms of the search query itself.
+- Search queries are performed against the index of the searched table. This index must be built for each table to be searchable, with this SQL command:
+
+```sql
+CREATE INDEX my_index ON my_table USING PGroonga ((ARRAY[column1, column2]));
+```
+
+Then the search query is as simple as this:
+
+```sql
+SELECT columnA, columnB FROM my_table WHERE ARRAY[columnX, columnY] &@~ ('term1 OR term2', ARRAY[2, 1], 'my_index')::pgroonga_full_text_search_condition
+```
+
+Being:
+ - `columnX` and `columnY` the columns where to perform the search query.
+ - `term1` and `term2` the terms of the search query. In this example joined by an OR operator.
+ - `ARRAY[2, 1]` the weights to apply to columns `columnX` and `columnY` respectively.
+
+Some notes:
+
+- As indexes are automatically updated by PostgreSQL whenever the related table is modified (with additions, removals or insertions), no trigger is required to keep the search functionality updated.
+- PGroonga supports advanced searching features:
+    - It can return the score for each row that matched the search query, representing the precision. Higher score, better fit of the row in the search query. For example, in this PoC the searched items are returned in descent order according to their score.
+    - It can manage different weights for different columns when performing a search in a table. This affects the score obtained for each result, or event the results themselves if weight is set to 0 for some column. For example, in this PoC the "title" column of the searchable entity has double the weight of its "description" column.
+    - It can work with AND/OR operators for multiple-word searches, with any combination between them. For example, this PoC concatenates all searched terms with OR operators.

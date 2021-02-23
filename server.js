@@ -20,7 +20,7 @@ async function startDB() {
         force: true
     });
     console.log("DB dropped and re-synced");
-    await initializeTriggers();
+    await createPgroongaIndexes();
     await feedSampleData();
 }
 
@@ -50,9 +50,8 @@ function startServer() {
  * Generate in PostgreSQL the trigger to insert/update/delete
  * the "search" table upon data table modifications
  */
-async function initializeTriggers() {
-    await createTriggerFunction();
-    await createTrigger('events');
+async function createPgroongaIndexes() {
+    await createIndex('events',['title','description']);
 }
 
 async function feedSampleData() {
@@ -66,41 +65,19 @@ async function feedSampleData() {
     });
 }
 
-const BUILD_TSVECTOR = '(setweight(to_tsvector(NEW."lang"::regconfig,NEW."title"),\'A\') || setweight(to_tsvector(NEW."lang"::regconfig,NEW."description"),\'B\'))';
-
-const CREATE_TRIGGER_FUNCTION = `
-CREATE OR REPLACE FUNCTION function_update_searches_table() RETURNS trigger AS
-$BODY$
-BEGIN
-    IF TG_OP = 'INSERT' THEN
-        INSERT INTO searches("id","text","title","lang","vector","objectType","createdAt","updatedAt") VALUES (NEW."id",CONCAT(NEW."title",' ',NEW."description"),NEW."title",NEW."lang",${BUILD_TSVECTOR},'event',NEW."createdAt",NEW."updatedAt");
-        RETURN NEW;
-    ELSEIF TG_OP = 'UPDATE' THEN
-        UPDATE searches SET "text" = CONCAT(NEW."title",' ',NEW."description"), "title" = NEW."title", "vector" = ${BUILD_TSVECTOR}, "lang" = NEW."lang", "updatedAt" = NEW."updatedAt" WHERE searches."id" = NEW."id";
-        RETURN NEW;
-    ELSEIF TG_OP = 'DELETE' THEN
-        DELETE FROM searches WHERE searches."id" = OLD."id";
-        RETURN OLD;
-    END IF;
-END;
-$BODY$
-language PLPGSQL
+const CREATE_INDEX = `
+CREATE INDEX %tablename%_pgroonga_index ON %tablename% USING PGroonga ((ARRAY[%column%]));
 `.replace(/\n|\r/g, ' '); // Replace new line chars with a single white space
 
-const CREATE_TRIGGER = `
-CREATE TRIGGER trigger_%tablename%
-    AFTER INSERT OR UPDATE OR DELETE ON %tablename%
-    FOR EACH ROW
-    EXECUTE PROCEDURE function_update_searches_table();
-`.replace(/\n|\r/g, ' '); // Replace new line chars with a single white space
-
-async function createTriggerFunction() {
-    console.log('Creating trigger function');
-    await db.sequelize.query(CREATE_TRIGGER_FUNCTION);
-}
-
-async function createTrigger(table) {
-    console.log(`Creating trigger for table ${table}`);
-    const query = CREATE_TRIGGER.split("%tablename%").join(table);
+async function createIndex(table, columns) {
+    let columnsParam = '';
+    columns.forEach((column, i, array) => {
+        columnsParam += column;
+        if (i < array.length - 1) {
+            columnsParam += ', ';
+        }
+    });
+    console.log(`Creating pgroonga index ${table}_pgroonga_index for table ${table}`);
+    const query = CREATE_INDEX.split("%tablename%").join(table).split('%column%').join(columnsParam);
     await db.sequelize.query(query);
 }

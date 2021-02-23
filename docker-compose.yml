@@ -3,18 +3,30 @@ version: '3.1'
 services:
 
   db:
-    image: postgres
+    image: groonga/pgroonga:2.2.7-alpine-13
     container_name: postgres
     restart: always
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: SECRET
       POSTGRES_DB: testdb
+    networks:
+      static-network:
+        ipv4_address: 172.99.0.22
     ports:
       - 5432:5432
 
-  adminer:
-    image: adminer
-    restart: always
-    ports:
-      - 8080:8080
+  dbsetup:
+    image: groonga/pgroonga:2.2.7-alpine-13
+    networks: 
+      - static-network 
+    depends_on:
+      - db
+    restart: "no"
+    entrypoint: ["bash", "-c", "until pg_isready -h 172.99.0.22 -p 5432 -U postgres; do echo 'Wating for postgres...' && sleep 1; done; echo 'Postgres up and ready'; PGPASSWORD=SECRET psql -h 172.99.0.22 -U postgres -d testdb -c 'create extension pgroonga;'"]
+
+networks:
+  static-network:
+    ipam:
+      config:
+        - subnet: 172.99.0.0/16

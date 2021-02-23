@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "7c365c40-6dbc-4551-81e9-22fdbae64e59",
+		"_postman_id": "de7c57ab-5a44-481d-855d-e446e56bbbdf",
 		"name": "POC",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -12,7 +12,36 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"title\": \"MY EVENT\",\n    \"description\": \"This is a sample event\",\n    \"lang\": \"en\"\n}",
+					"raw": "{\n    \"title\": \"Groonga\",\n    \"description\": \"Groonga is a fast full text search engine that supports all languages.\",\n    \"lang\": \"en\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/events",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"events"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create a new Event (Chinese)",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"title\": \"移民必须遵循的程序非常简单。\",\n    \"description\": \"当一个移民到达中心时，他必须填写几份报告。\",\n    \"lang\": \"zh\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -67,32 +96,12 @@
 			"response": []
 		},
 		{
-			"name": "List all Searches",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "http://localhost:5000/api/searches",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "5000",
-					"path": [
-						"api",
-						"searches"
-					]
-				}
-			},
-			"response": []
-		},
-		{
 			"name": "Search by words",
 			"request": {
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:5000/api/searches/search?lang=en&words=centre,report",
+					"raw": "http://localhost:5000/api/searches/search?table=events&lang=es&words=Madrid,inmigrante",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -105,12 +114,51 @@
 					],
 					"query": [
 						{
+							"key": "table",
+							"value": "events"
+						},
+						{
 							"key": "lang",
-							"value": "en"
+							"value": "es"
 						},
 						{
 							"key": "words",
-							"value": "centre,report"
+							"value": "Madrid,inmigrante"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Search by words (Chinese)",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:5000/api/searches/search?table=events&lang=zh&words=移民",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"searches",
+						"search"
+					],
+					"query": [
+						{
+							"key": "table",
+							"value": "events"
+						},
+						{
+							"key": "lang",
+							"value": "zh"
+						},
+						{
+							"key": "words",
+							"value": "移民"
 						}
 					]
 				}
