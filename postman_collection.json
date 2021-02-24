@@ -166,6 +166,41 @@
 			"response": []
 		},
 		{
+			"name": "Search by words (Arabic)",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:5000/api/searches/search?table=events&lang=ar&words=مدريد",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"searches",
+						"search"
+					],
+					"query": [
+						{
+							"key": "table",
+							"value": "events"
+						},
+						{
+							"key": "lang",
+							"value": "ar"
+						},
+						{
+							"key": "words",
+							"value": "مدريد"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "Get one Event",
 			"request": {
 				"method": "GET",

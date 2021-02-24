@@ -36,6 +36,7 @@ exports.search = async (req, res) => {
     const query = SEARCH_QUERY
         .split("%table%").join(table)
         .split("%search%").join(search)
+        .split("%search_context%").join(JSON.stringify(wordsToSearch).replace(/"/g, "'"))
         .split("%lang_condition%").join(lang);
 
     console.log(query);
@@ -44,7 +45,11 @@ exports.search = async (req, res) => {
 };
 
 const SEARCH_QUERY = `
-SELECT id, title, lang, pgroonga_score(tableoid, ctid) AS score
+SELECT 
+    id, title, lang,
+    pgroonga_score(tableoid, ctid) AS score,
+    pgroonga_snippet_html(title, ARRAY%search_context%) AS title_context,
+    pgroonga_snippet_html(description, ARRAY%search_context%) AS description_context
 FROM %table%
 WHERE %lang_condition% ARRAY[title, description] &@~ ('%search%', ARRAY[2, 1], '%table%_pgroonga_index')::pgroonga_full_text_search_condition
 ORDER BY score DESC;

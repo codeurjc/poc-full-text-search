@@ -52,6 +52,7 @@ node server.js
 #### Search API
 - Search by words
 - Search by words (Chinese)
+- Search by words (Arabic)
 
 The "Search by words" operation consists of:
 
@@ -61,6 +62,33 @@ The following query parameters are required:
 - `table`: mandatory, the table where to perform the search.
 - `words`: mandatory, a comma-separated list of the words to search.
 - `lang`: optional, indicating the language of the searched document. If defined, an additional filter will be added to the query to filter by field `lang`. But it doesn't actually participate in the full text search query itself. If undefined, a default query will be performed, delegating the responsibility to PGroonga library (which is prepared to manage the language itself according to the [official documentation](https://pgroonga.github.io/v1/reference/pgroonga-versus-textsearch-and-pg-trgm.html#index-creation)).
+
+The result is an array with objects defined by the following fields:
+
+- `id`: id of the element.
+- `title`: title of the element.
+- `lang`: language of the element.
+- `score`: precision of the element according to the searched terms. Elements are sorted in descending order according to this parameter.
+- `title_context`: array of strings with the surrounding text of the found keywords (in the title of the elements). This is also known as KWIC (KeyWord In Context). The keywords are marked as HTML elements. For example:  _surrounding text **`<span class=\"keyword\">mykeyword</span>`** surrounding text_
+- `description_context`: same as *title_context* but with the description column of the elements.
+
+A result for a search like this: **`http://localhost:5000/api/searches/search?table=events&lang=es&words=Madrid,inmigrante`**
+```json
+[
+    {
+        "id": 3,
+        "title": "Servicio de Apoyo Itinerante al Alumnado Inmigrante (SAI)",
+        "lang": "spanish",
+        "score": 4,
+        "title_context": [
+            "Servicio de Apoyo Itinerante al Alumnado <span class=\"keyword\">Inmigrante</span> (SAI)"
+        ],
+        "description_context": [
+            " Juventud y Deporte de la Comunidad de <span class=\"keyword\">Madrid</span> ofrece un servicio de apoyo y asesoramiento dirigido a facilitar la incorporación educativa del alumnado <span class=\"keyword\">inmigrante</span> que se escolariza a lo largo del curs"
+        ]
+    }
+]
+```
 
 ---
 

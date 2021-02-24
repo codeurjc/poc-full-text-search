@@ -37,5 +37,15 @@ module.exports = [{
         "title": "Hackney Migrant Centre",
         "description": "Hackney Migrant Centre is a charity that runs a weekly drop-in for asylum seekers, refugees and migrants. During the drop-in we offer free advice on immigration and housing and benefit problems.",
         "lang": "en"
+    },
+    {
+        "title": "公民咨询办公室；", // Citizen's Attention Office.
+        "description": "市民咨询局位于市中心。该中心的开放时间可以在市政厅的网站上找到。在这个流行期间，最好提前预约，避免人多。", // La Oficina de Atención al Ciudadano se encuentra en el centro de la ciudad. Los horarios de apertura del centro se pueden consultar en la página web del Ayuntamiento. Durante este período tan popular, es mejor concertar una cita con antelación para evitar las aglomeraciones.
+        "lang": "zh"
+    },
+    {
+        "title": "الميزانية الجديدة لمدينة مدريد.", // The new budget of Madrid
+        "description": "مدينة مدريد تقر ميزانية لتعزيز اندماج المهاجرين من المنطقة المغاربية.", // The city of Madrid approves a budget to promote the integration of immigrants from the Maghreb.
+        "lang": "ar"
     }
 ];
